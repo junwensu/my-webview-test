@@ -1,57 +1,45 @@
-<!DOCTYPE html>
-<html>
-<body>
-
-<h2>JSBridge 深度测试</h2>
-<pre id="log"></pre>
-
 <script>
 function log(msg) {
-    document.getElementById("log").innerHTML += msg + "\n";
+    document.body.innerHTML += msg + "<br>";
 }
 
-log("页面加载");
-
-// 监听桥初始化
+// 等待 bridge ready
 document.addEventListener('ToutiaoJSBridgeReady', function () {
-    log("✅ ToutiaoJSBridge Ready");
+    log("Bridge Ready");
 
-    try {
-        log("桥对象: " + JSON.stringify(window.ToutiaoJSBridge));
+    let bridge = window.ToutiaoJSBridge;
 
-        // 尝试不同调用方式
-        if (window.ToutiaoJSBridge.call) {
-            window.ToutiaoJSBridge.call('device.getInfo', {}, function(res){
-                log("call 返回: " + JSON.stringify(res));
-            });
-        } else {
-            log("没有 call 方法");
-        }
-
-    } catch (e) {
-        log("调用异常: " + e);
+    // 👇 枚举所有方法（关键）
+    for (let k in bridge) {
+        try {
+            log("方法: " + k + " => " + typeof bridge[k]);
+        } catch(e){}
     }
+
+    // 👇 尝试几种常见调用方式
+    try {
+        if (bridge.call) {
+            bridge.call("device.getInfo", {}, function(res){
+                log("call 成功: " + JSON.stringify(res));
+            });
+        }
+    } catch(e) {
+        log("call error: " + e);
+    }
+
 }, false);
 
 
-// fallback（有些版本不触发事件）
-setTimeout(function() {
+// fallback
+setTimeout(function(){
     if (window.ToutiaoJSBridge) {
-        log("⚠️ fallback 发现 bridge");
+        log("fallback bridge 存在");
 
-        try {
-            if (window.ToutiaoJSBridge.call) {
-                window.ToutiaoJSBridge.call('device.getInfo', {}, function(res){
-                    log("fallback 返回: " + JSON.stringify(res));
-                });
-            }
-        } catch(e) {
-            log("fallback error: " + e);
+        let bridge = window.ToutiaoJSBridge;
+
+        for (let k in bridge) {
+            log("fallback 方法: " + k);
         }
     }
 }, 3000);
-
 </script>
-
-</body>
-</html>
