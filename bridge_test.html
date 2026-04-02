@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>JSBridge Test</title>
+</head>
+<body>
+
+<h2>JSBridge 检测页面</h2>
+<pre id="output"></pre>
+
+<script>
+function log(msg) {
+    document.getElementById("output").innerHTML += msg + "\n";
+}
+
+// 1. 列出全局对象
+log("=== 全局对象检测 ===");
+for (var key in window) {
+    if (typeof window[key] === "object" || typeof window[key] === "function") {
+        if (key.toLowerCase().includes("bridge") ||
+            key.toLowerCase().includes("js") ||
+            key.toLowerCase().includes("tt") ||
+            key.toLowerCase().includes("bytedance")) {
+            log("发现可疑对象: " + key);
+        }
+    }
+}
+
+// 2. 常见 JSBridge 探测
+log("\n=== 常见桥检测 ===");
+
+if (window.bytedance) log("存在 window.bytedance");
+if (window.tt) log("存在 window.tt");
+if (window.ToutiaoJSBridge) log("存在 ToutiaoJSBridge");
+if (window.webkit) log("存在 webkit（iOS风格桥）");
+
+// 3. 尝试调用（不会产生真实影响）
+log("\n=== 尝试调用 ===");
+
+try {
+    if (window.bytedance && window.bytedance.call) {
+        window.bytedance.call("device.getInfo", {}, function(res){
+            log("bytedance.call 返回: " + JSON.stringify(res));
+        });
+    }
+} catch(e) {
+    log("调用 bytedance.call 报错: " + e);
+}
+
+try {
+    if (window.ToutiaoJSBridge) {
+        window.ToutiaoJSBridge.invoke("device.getInfo", {}, function(res){
+            log("ToutiaoJSBridge 返回: " + JSON.stringify(res));
+        });
+    }
+} catch(e) {
+    log("调用 ToutiaoJSBridge 报错: " + e);
+}
+
+</script>
+
+</body>
+</html>
