@@ -1,42 +1,8 @@
+<html>
+<body>
 <script>
-function log(msg) {
-    document.body.innerHTML += msg + "<br>";
-}
-
-function tryInvoke() {
-    let bridge = window.ToutiaoJSBridge;
-
-    if (!bridge) {
-        log("bridge 不存在");
-        return;
-    }
-
-    if (bridge.invokeMethod) {
-        log("发现 invokeMethod，开始调用");
-
-        try {
-            bridge.invokeMethod("device.getInfo", {}, function(res){
-                log("返回: " + JSON.stringify(res));
-            });
-        } catch(e) {
-            log("调用异常: " + e);
-        }
-
-    } else {
-        log("没有 invokeMethod");
-    }
-}
-
-// 等待初始化
-document.addEventListener('ToutiaoJSBridgeReady', function () {
-    log("Bridge Ready");
-    tryInvoke();
-}, false);
-
-// fallback
-setTimeout(function(){
-    log("fallback 尝试");
-    tryInvoke();
-}, 3000);
-
+alert(iesJsBridgeTransferMonitor.getInfo());
+alert(document.cookie);
 </script>
+</body>
+</html>
