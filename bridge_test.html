@@ -3,43 +3,40 @@ function log(msg) {
     document.body.innerHTML += msg + "<br>";
 }
 
-// 等待 bridge ready
-document.addEventListener('ToutiaoJSBridgeReady', function () {
-    log("Bridge Ready");
-
+function tryInvoke() {
     let bridge = window.ToutiaoJSBridge;
 
-    // 👇 枚举所有方法（关键）
-    for (let k in bridge) {
+    if (!bridge) {
+        log("bridge 不存在");
+        return;
+    }
+
+    if (bridge.invokeMethod) {
+        log("发现 invokeMethod，开始调用");
+
         try {
-            log("方法: " + k + " => " + typeof bridge[k]);
-        } catch(e){}
-    }
-
-    // 👇 尝试几种常见调用方式
-    try {
-        if (bridge.call) {
-            bridge.call("device.getInfo", {}, function(res){
-                log("call 成功: " + JSON.stringify(res));
+            bridge.invokeMethod("device.getInfo", {}, function(res){
+                log("返回: " + JSON.stringify(res));
             });
+        } catch(e) {
+            log("调用异常: " + e);
         }
-    } catch(e) {
-        log("call error: " + e);
+
+    } else {
+        log("没有 invokeMethod");
     }
+}
 
+// 等待初始化
+document.addEventListener('ToutiaoJSBridgeReady', function () {
+    log("Bridge Ready");
+    tryInvoke();
 }, false);
-
 
 // fallback
 setTimeout(function(){
-    if (window.ToutiaoJSBridge) {
-        log("fallback bridge 存在");
-
-        let bridge = window.ToutiaoJSBridge;
-
-        for (let k in bridge) {
-            log("fallback 方法: " + k);
-        }
-    }
+    log("fallback 尝试");
+    tryInvoke();
 }, 3000);
+
 </script>
